@@ -38,6 +38,8 @@ class ProblemResolver {
 
     const result: number[][] = [];
 
+    // 실로 놀라운 bit shift 연산을 통해 부분집합을 구한다.
+    // 하지만 여백이 부족하여 이를 적지 않겠다.
     for (let i = 0; i < 2 ** length; i++) {
       const part = numbers.filter(
         (_, index) => (i & (1 << index)) === 1 << index
