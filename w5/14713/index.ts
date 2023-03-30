@@ -43,7 +43,10 @@ class InputHandler {
   ) {}
 
   static readStdin() {
-    const [_, ...messages] = readFileSync("/dev/stdin").toString().split("\n");
+    const [_, ...messages] = readFileSync("/dev/stdin")
+      .toString()
+      .trim()
+      .split("\n");
     const target = (messages.pop() || "").trim();
     return new InputHandler(target, messages);
   }
