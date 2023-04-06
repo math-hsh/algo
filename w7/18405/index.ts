@@ -28,7 +28,37 @@ class ProblemResolver {
   constructor(private readonly input: InputHandler) {}
 
   solve() {
-    return 1;
+    const copiedRows = this.input.rows.map((row) => [...row]);
+    const alreadyMoved = this.input.rows.map((row) => row.map(() => false));
+
+    for (const _ of Array.from({ length: this.input.s })) {
+      for (let index = 1; index <= this.input.k; index++) {
+        for (let p = 0; p < this.input.rows.length; p++) {
+          const row = this.input.rows[p];
+          for (let q = 0; q < row.length; q++) {
+            if (row[q] != index || alreadyMoved[p][q]) continue;
+
+            const directions = [
+              [-1, 0],
+              [0, -1],
+              [1, 0],
+              [0, 1],
+            ];
+
+            alreadyMoved[p][q] = true;
+            for (const [dx, dy] of directions) {
+              if ((!dx && !dy) || !this.input.rows[p + dx]?.[q + dy]) {
+                continue;
+              }
+
+              this.input.rows[p + dx][q + dy] = row[q];
+            }
+          }
+        }
+      }
+    }
+
+    return copiedRows[this.input.x][this.input.y];
   }
 }
 
