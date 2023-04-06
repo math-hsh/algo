@@ -1,14 +1,41 @@
-// A, B (1 ≤ A < B ≤ 109)
-
 import { readFileSync } from "fs";
 
+interface Coord {
+  x: number;
+  y: number;
+}
+
+class Rectangle {
+  constructor(
+    public readonly leftTop: Coord,
+    public readonly rightBottom: Coord
+  ) {}
+}
+
 class InputHandler {
-  constructor(public readonly a: number, public readonly b: number) {}
+  constructor(
+    public readonly m: number,
+    public readonly n: number,
+    public readonly k: number,
+    public readonly rectangles: Rectangle[]
+  ) {}
 
   static fromStdin() {
     const rawInput = readFileSync("/dev/stdin").toString().trim();
-    const [a, b] = rawInput.split(" ").map(Number);
-    return new InputHandler(a, b);
+    const [firstLine, ...restLine] = rawInput.split("\n");
+    const [m, n, k] = firstLine.split(" ").map(Number);
+
+    return new InputHandler(
+      m,
+      n,
+      k,
+      restLine
+        .map((row) => row.split(" ").map(Number))
+        .map(
+          ([sx, sy, ex, ey]) =>
+            new Rectangle({ x: sx, y: sy }, { x: ex, y: ey })
+        )
+    );
   }
 }
 
@@ -16,32 +43,24 @@ class ProblemResolver {
   constructor(private readonly input: InputHandler) {}
 
   solve() {
-    const isEndWith1 = (n: number) => n % 10 == 1;
-    const cut1InLast = (n: number) => (n - 1) / 10;
-    const isEven = (n: number) => n % 2 == 0;
-    const half = (n: number) => n / 2;
+    const blocked = Array.from({ length: this.input.n }).map(() =>
+      Array.from({ length: this.input.m }).map(() => false)
+    );
 
-    let counts = new Set<number>();
-    const moveToA = (b: number, depth = 1) => {
-      let newNumber: number | undefined = undefined;
+    for (const rectangle of this.input.rectangles) {
+      const sx = rectangle.leftTop.x;
+      const ex = rectangle.rightBottom.x;
+      const sy = rectangle.leftTop.y;
+      const ey = rectangle.rightBottom.y;
 
-      if (isEndWith1(b)) {
-        newNumber = cut1InLast(b);
-      } else if (isEven(b)) {
-        newNumber = half(b);
-      }
-
-      if (newNumber) {
-        if (newNumber == this.input.a) {
-          counts.add(depth);
-        } else {
-          moveToA(newNumber, depth + 1);
+      for (let x = sx; x <= ex; x++) {
+        for (let y = sy; y <= ey; y++) {
+          blocked[x][y] = true;
         }
       }
-    };
+    }
 
-    moveToA(this.input.b);
-    return counts.size ? Math.min(...counts) + 1 : -1;
+    console.log({ blocked });
   }
 }
 
